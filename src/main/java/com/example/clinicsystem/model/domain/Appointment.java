@@ -1,19 +1,7 @@
 package com.example.clinicsystem.model.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
+import java.time.LocalDate;
+import jakarta.persistence.*;
 @Entity
 @Table(name = "appointments")
 public class Appointment {
@@ -23,7 +11,7 @@ public class Appointment {
     private Long id;
 
     @Column(name = "appointment_date", nullable = false)
-    private LocalDateTime appointmentDate;
+    private LocalDate appointmentDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,7 +28,7 @@ public class Appointment {
 public Appointment() {
     }
 
-    public Appointment(LocalDateTime appointmentDate, Patient patient, Doctor doctor) {
+    public Appointment(LocalDate appointmentDate, Patient patient, Doctor doctor) {
         this.appointmentDate = appointmentDate;
         this.patient = patient;
         this.doctor = doctor;
@@ -54,11 +42,11 @@ public Appointment() {
         this.id = id;
     }
 
-    public LocalDateTime getAppointmentDate() {
+    public LocalDate getAppointmentDate() {
         return appointmentDate;
     }
 
-    public void setAppointmentDate(LocalDateTime appointmentDate) {
+    public void setAppointmentDate(LocalDate appointmentDate) {
         this.appointmentDate = appointmentDate;
     }
 

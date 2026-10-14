@@ -3,7 +3,7 @@ package com.example.clinicsystem.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.PageRequest;
 import com.example.clinicsystem.exception.ResourceNotFoundException;
 import com.example.clinicsystem.model.domain.Office;
 import com.example.clinicsystem.repository.OfficeRepository;
@@ -26,9 +26,9 @@ public class OfficeService {
         return officeRepository.findAll();
     }
     public Object busiest(){
-        List<Object[]> rows = officeRepository.findBusiestOffice(pageRequest.of(0, 1));
-        if (rows.isEmpty())  return "No appointments yet";{
-            return rows.get(0);
+        List<Object[]> result = officeRepository.findBusiestOffice(PageRequest.of(0, 1));
+        if (result.isEmpty())  return "No appointments yet";{
+            return result.get(0);
         }
     }
 

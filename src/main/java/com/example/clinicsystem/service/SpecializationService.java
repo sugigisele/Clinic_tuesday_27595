@@ -1,61 +1,58 @@
 package com.example.clinicsystem.service;
-
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.example.clinicsystem.exception.ResourceNotFoundException;
-import com.example.clinicsystem.model.domain.Doctor;
 import com.example.clinicsystem.model.domain.Specialization;
 import com.example.clinicsystem.repository.SpecializationRepository;
+import com.example.clinicsystem.model.domain.Doctor;
 
 @Service
 public class SpecializationService {
 
-    private final SpecializationRepository specializationRepository;
+    @Autowired
+    private SpecializationRepository specializationRepository;
 
-    public SpecializationService(SpecializationRepository specializationRepository) {
-        this.specializationRepository = specializationRepository;
-    }
-
-    public Specialization create(Specialization specialization) {
-        specialization.setId(null);
+    public Specialization save(Specialization specialization) {
         return specializationRepository.save(specialization);
     }
 
     public List<Specialization> getAll() {
         return specializationRepository.findAll();
     }
-    public List<Specialization> unsend() {
-        return specializationRepository.findUnsed();
+
+    public Optional<Specialization> getById(Long id) {
+        return specializationRepository.findById(id);
     }
 
-    public Specialization getById(Long id) {
-        return specializationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Specialization not found with id " + id));
-    }
-
-    public Specialization update(Long id, Specialization updated) {
-        Specialization existing = getById(id);
-        existing.setName(updated.getName());
-        return specializationRepository.save(existing);
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        Specialization existing = getById(id);
-        // Doctor owns the relationship, so first remove this specialization from every doctor
-        for (Doctor doctor : new HashSet<>(existing.getDoctors())) {
-            doctor.getSpecializations().remove(existing);
+    public String update(Long id, Specialization newSpec) {
+        Optional<Specialization> found = specializationRepository.findById(id);
+        if (found.isEmpty()) {
+            return "Specialization with that id does not exist";
         }
-        specializationRepository.delete(existing);
+        Specialization spec = found.get();
+        spec.setName(newSpec.getName());
+        specializationRepository.save(spec);
+        return "Specialization updated successfully";
     }
 
-    @Transactional
-    public List<Doctor> getDoctors(Long id) {
-        return new ArrayList<>(getById(id).getDoctors());
+    public String delete(Long id) {
+        if (!specializationRepository.existsById(id)) {
+            return "Specialization with that id does not exist";
+        }
+        specializationRepository.deleteById(id);
+        return "Specialization deleted successfully";
+    }
+
+    public List<Specialization> getUnused() {
+        return specializationRepository.findUnused();
+    }
+            public List<Doctor> getDoctors(Long id) {
+        Optional<Specialization> found = specializationRepository.findById(id);
+        if (found.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(found.get().getDoctors());
     }
 }

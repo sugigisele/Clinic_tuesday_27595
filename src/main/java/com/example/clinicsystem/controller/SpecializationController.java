@@ -1,19 +1,9 @@
 package com.example.clinicsystem.controller;
 
 import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import com.example.clinicsystem.model.domain.Doctor;
 import com.example.clinicsystem.model.domain.Specialization;
 import com.example.clinicsystem.service.SpecializationService;
@@ -22,26 +12,21 @@ import com.example.clinicsystem.service.SpecializationService;
 @RequestMapping("/api/specializations")
 public class SpecializationController {
 
-    private final SpecializationService specializationService;
+    @Autowired
+    private SpecializationService specializationService;
 
-    public SpecializationController(SpecializationService specializationService) {
-        this.specializationService = specializationService;
+    @PostMapping("/save")
+    public Specialization save(@RequestBody Specialization specialization) {
+        return specializationService.save(specialization);
     }
 
-    @PostMapping
-    public ResponseEntity<Map<String, Object>> create(@RequestBody Specialization specialization) {
-        Specialization saved = specializationService.create(specialization);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.<String, Object>of("message", "Specialization created successfully"));
-    }
-
-    @GetMapping
+    @GetMapping("/all")
     public List<Specialization> getAll() {
         return specializationService.getAll();
     }
 
     @GetMapping("/{id}")
-    public Specialization getById(@PathVariable Long id) {
+    public Optional<Specialization> getById(@PathVariable Long id) {
         return specializationService.getById(id);
     }
 
@@ -49,22 +34,19 @@ public class SpecializationController {
     public List<Doctor> getDoctors(@PathVariable Long id) {
         return specializationService.getDoctors(id);
     }
+
     @GetMapping("/unused")
     public List<Specialization> getUnused() {
         return specializationService.getUnused();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id,
-                                                      @RequestBody Specialization specialization) {
-        Specialization saved = specializationService.update(id, specialization);
-        return ResponseEntity.ok(
-                Map.<String, Object>of("message", "Specialization updated successfully"));
+    @PutMapping("/update/{id}")
+    public String update(@PathVariable Long id, @RequestBody Specialization specialization) {
+        return specializationService.update(id, specialization);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
-        specializationService.delete(id);
-        return ResponseEntity.ok(Map.of("message", "Specialization with id " + id + " deleted successfully"));
+    @DeleteMapping("/delete/{id}")
+    public String delete(@PathVariable Long id) {
+        return specializationService.delete(id);
     }
 }

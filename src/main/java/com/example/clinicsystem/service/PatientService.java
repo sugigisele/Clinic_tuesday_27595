@@ -3,10 +3,12 @@ package com.example.clinicsystem.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.example.clinicsystem.exception.ResourceNotFoundException;
 import com.example.clinicsystem.model.domain.Patient;
 import com.example.clinicsystem.repository.PatientRepository;
+import com.example.clinicsystem.repository.DoctorRepository;
 
 @Service
 public class PatientService {
@@ -58,5 +60,20 @@ public class PatientService {
 
     public void delete(Long id) {
         patientRepository.delete(getById(id));
+    }
+
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+        public List<Patient> getFrequentPatients(long min) {
+        return patientRepository.findFrequentPatients(min);
+    }
+
+    public boolean doctorExists(Long doctorId) {
+        return doctorRepository.existsById(doctorId);
+    }
+
+    public List<Patient> getByDoctorId(Long doctorId) {
+        return patientRepository.findPatientsByDoctorId(doctorId);
     }
 }

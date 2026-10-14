@@ -53,11 +53,10 @@ public class DoctorService {
     }
 
     public List <Doctor> bySpecialization(String name) {
-        Specialization specialization = findSpecializationByName(name);
-        return doctorRepository.findBySpecializationsName(name);
+        return doctorRepository.findBySpecializationName(name);
     }
     public List <Doctor> withoutOffice() {
-        return doctorRepository.findByWithoutOffice();
+        return doctorRepository.findWithoutOffice();
     }
 
     public Doctor getById(Long id) {

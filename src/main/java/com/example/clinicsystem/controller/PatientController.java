@@ -2,7 +2,7 @@ package com.example.clinicsystem.controller;
 
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,15 +45,19 @@ public class PatientController {
     }
     @GetMapping("/by-name")
     public List<Patient> getByName(@RequestParam String name) {
-        return patientService.getByName(name);
+        return patientService.findByName(name);
     }
-    @GetMapping("/of-doctor/{doctorId}")
-    public List<Patient> getByDoctorId(@PathVariable Long doctorId) {
-        return patientService.getByDoctorId(doctorId);
+        @GetMapping("/of-doctor/{doctorId}")
+    public ResponseEntity<Object> getByDoctorId(@PathVariable Long doctorId) {
+        if (!patientService.doctorExists(doctorId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("The doctor with that id does not exist");
+        }
+        return ResponseEntity.ok(patientService.getByDoctorId(doctorId));
     }
     @GetMapping("/frequent")
     public List<Patient> getFrequentPatients(@RequestParam long min) {
-        return patientService.getFrequentPatients();
+        return patientService.getFrequentPatients(min);
     }
 
     @PutMapping("/{id}")

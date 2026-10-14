@@ -1,19 +1,15 @@
 package com.example.clinicsystem.controller;
-
+import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import com.example.clinicsystem.model.domain.AppointmentStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.*;
 
 import com.example.clinicsystem.model.domain.Appointment;
 import com.example.clinicsystem.service.AppointmentService;
@@ -53,7 +49,7 @@ public class AppointmentController {
     }
     @GetMapping("/between-dates")
     public List<Appointment> getAppointmentsBetweenDates(@RequestParam String startDate, @RequestParam String endDate) {
-        return appointmentService.getAppointmentsBetweenDates(startDate, endDate);
+        return appointmentService.betweenDates(LocalDate.parse(startDate), LocalDate.parse(endDate));
     }
     @GetMapping("/status/by-status")
     public List<Object[]> Status () {
@@ -61,13 +57,22 @@ public class AppointmentController {
     }
     @PatchMapping("/cancel-day")
     public String cancelDay(@RequestParam Long doctorId, @RequestParam String date) {
-        return appointmentService.cancelDay(doctorId, date);
+        return appointmentService.cancelDay(doctorId, LocalDate.parse(date));
     }
-    @GetMapping("/page")
-    public Page<Appointment> page(@RequestParam (defaultValue = "0") int page, @RequestParam (defaultValue = "5") int size, @RequestParam(defaultValue = "appointmentDate,desc") String sort) {
-        String[] sortParams = sort.split(",");
-        String.Direction dir = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return appointmentService.page(page, size, Sort.by(dir, sortParams[0]));
+        @GetMapping("/page")
+    public Page<Appointment> getPage(@RequestParam int page,
+                                     @RequestParam int size,
+                                     @RequestParam String sort) {
+        String[] parts = sort.split(",");
+        String field = parts[0];
+
+        Sort.Direction direction = Sort.Direction.ASC;
+        if (parts.length > 1 && parts[1].equalsIgnoreCase("desc")) {
+            direction = Sort.Direction.DESC;
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, field));
+        return appointmentService.getPage(pageable);
     }
 
     @PutMapping("/{id}")
@@ -86,6 +91,6 @@ public class AppointmentController {
     }
     @DeleteMapping("/cancelled-before")
     public String deletOld(@RequestParam String date) {
-        return appointmentService.deleteCancelledBefore(date);
+        return appointmentService.deleteCancelledBefore(LocalDate.parse(date));
     }
 }

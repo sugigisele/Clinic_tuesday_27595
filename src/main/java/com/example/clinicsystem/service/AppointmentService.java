@@ -1,10 +1,14 @@
 package com.example.clinicsystem.service;
 
 import java.util.List;
-
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.Optional;
 import com.example.clinicsystem.exception.ResourceNotFoundException;
 import com.example.clinicsystem.model.domain.Appointment;
 import com.example.clinicsystem.model.domain.AppointmentStatus;
@@ -37,7 +41,7 @@ public String saveAppointment(Appointment appointment, Long patientId, Long doct
     if (patient.isEmpty() || doctor.isEmpty()) {
         return "That patient or doctor is not available";
     }
-    LocalDate day = appointment.getAppointmentDate().toLocalDate();
+    LocalDate day = appointment.getAppointmentDate();
     boolean booked = appointmentRepository.existsByDoctorIdAndAppointmentDateBetweenAndStatusNot(
             doctorId, day.atStartOfDay(), day.atTime(LocalTime.MAX), AppointmentStatus.CANCELLED); // A4
     if (booked) return "Doctor is already booked on that date";
@@ -68,13 +72,13 @@ public String cancelDay(Long doctorId, LocalDate date) {
 
 public Page<Appointment> page(Pageable pageable) { return appointmentRepository.findAll(pageable); } // bonus
 
-@Transactional
-public String deleteCancelledBefore(LocalDate date) {
-    int n = appointmentRepository.deleteCancelledBefore(date.atStartOfDay(), AppointmentStatus.CANCELLED);
-    return n + " appointments deleted";
-}
+    @Transactional
+    public String deleteCancelledBefore(LocalDate date) {
+        int count = appointmentRepository.deleteCancelledBefore(date, AppointmentStatus.CANCELLED);
+        return count + " appointments deleted";
+    }
 
-    // READ
+    
     public List<Appointment> getAll() {
         return appointmentRepository.findAll();
     }
@@ -88,7 +92,7 @@ public String deleteCancelledBefore(LocalDate date) {
                 .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id " + id));
     }
 
-    // UPDATE
+    
     @Transactional
     public Appointment update(Long id, Appointment updated, Long patientId, Long doctorId) {
         Appointment existing = getById(id);
@@ -108,7 +112,7 @@ public String deleteCancelledBefore(LocalDate date) {
         return appointmentRepository.save(existing);
     }
 
-    // DELETE
+    
     public void delete(Long id) {
         appointmentRepository.delete(getById(id));
     }
@@ -121,5 +125,13 @@ public String deleteCancelledBefore(LocalDate date) {
     private Doctor findDoctor(Long id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id " + id));
+    }
+
+         public List<Appointment> betweenDates(LocalDate start, LocalDate end) {
+        return appointmentRepository.findByAppointmentDateBetweenOrderByAppointmentDateAsc(start, end);
+    }
+
+        public Page<Appointment> getPage(Pageable pageable) {
+        return appointmentRepository.findAll(pageable);
     }
 }
