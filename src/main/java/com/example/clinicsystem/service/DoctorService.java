@@ -56,7 +56,7 @@ public class DoctorService {
         return doctorRepository.findBySpecializationName(name);
     }
     public List <Doctor> withoutOffice() {
-        return doctorRepository.findWithoutOffice();
+        return doctorRepository.findByOfficeIsNullOrderByFullName();
     }
 
     public Doctor getById(Long id) {
@@ -74,10 +74,10 @@ public class DoctorService {
     }
 
     public void delete(Long id) {
-        doctorRepository.delete(getById(id)); // office is deleted too; join-table rows are removed automatically
+        doctorRepository.delete(getById(id)); 
     }
 
-    // ---------- Many-to-Many ----------
+    
 
     @Transactional
     public Doctor addSpecialization(Long doctorId, Long specializationId) {

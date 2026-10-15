@@ -1,9 +1,10 @@
 package com.example.clinicsystem.service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-
-import org.springframework.stereotype.Service;
+import java.util.Map;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
 import com.example.clinicsystem.exception.ResourceNotFoundException;
 import com.example.clinicsystem.model.domain.Office;
 import com.example.clinicsystem.repository.OfficeRepository;
@@ -25,11 +26,18 @@ public class OfficeService {
     public List<Office> getAll() {
         return officeRepository.findAll();
     }
-    public Object busiest(){
+
+    public Object busiest() {
         List<Object[]> result = officeRepository.findBusiestOffice(PageRequest.of(0, 1));
-        if (result.isEmpty())  return "No appointments yet";{
-            return result.get(0);
+        if (result.isEmpty()) {
+            return "No appointments yet";
         }
+        Object[] row = result.get(0);
+        Map<String, Object> office = new LinkedHashMap<>();
+        office.put("id", row[0]);
+        office.put("roomNumber", row[1]);
+        office.put("appointments", row[2]);
+        return office;
     }
 
     public Office getById(Long id) {
