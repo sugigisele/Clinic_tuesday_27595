@@ -23,4 +23,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("SELECT a.status, COUNT(a) FROM Appointment a GROUP BY a.status")
     List<Object[]> countByStatus();
+
+    // D1: a doctor's appointments on one day, without the CANCELLED ones
+    List<Appointment> findByDoctorIdAndAppointmentDateAndStatusNot(Long doctorId, LocalDate date,
+            AppointmentStatus status);
+
+    // D2: a patient's appointments from a date onward, only some statuses, soonest
+    // first
+    List<Appointment> findByPatientIdAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+            Long patientId, LocalDate date, List<AppointmentStatus> statuses);
+
+    // D4: counts for the dashboard
+    long countByAppointmentDate(LocalDate date);
+
+    long countByStatusEquals(AppointmentStatus status);
 }

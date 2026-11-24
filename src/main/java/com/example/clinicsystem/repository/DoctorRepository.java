@@ -25,4 +25,11 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     List<Doctor> findBySpecializationName(@Param("name") String name);
 
     List<Doctor> findByOfficeIsNullOrderByFullName();
+
+    // A4 (derived): is this office used by a doctor other than the given one?
+    boolean existsByOffice_RoomNumberAndIdNot(String roomNumber, Long id);
+
+    // D3 (JPQL): name contains the text, ignoring letter case
+    @Query("SELECT d FROM Doctor d WHERE LOWER(d.fullName) LIKE LOWER(CONCAT('%', :name, '%')) ORDER BY d.fullName")
+    List<Doctor> searchByName(@Param("name") String name);
 }

@@ -27,6 +27,11 @@ public class OfficeService {
         return officeRepository.findAll();
     }
 
+    // A3: offices without a doctor
+    public List<Office> freeOffices() {
+        return officeRepository.findFreeOffices();
+    }
+
     public Object busiest() {
         List<Object[]> result = officeRepository.findBusiestOffice(PageRequest.of(0, 1));
         if (result.isEmpty()) {

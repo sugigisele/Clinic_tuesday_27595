@@ -2,11 +2,8 @@ package com.example.clinicsystem.repository;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.clinicsystem.model.domain.Patient;

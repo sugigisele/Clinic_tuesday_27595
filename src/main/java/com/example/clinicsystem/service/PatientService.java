@@ -1,22 +1,31 @@
 package com.example.clinicsystem.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import com.example.clinicsystem.exception.ResourceNotFoundException;
+import com.example.clinicsystem.model.domain.Appointment;
+import com.example.clinicsystem.model.domain.AppointmentStatus;
 import com.example.clinicsystem.model.domain.Patient;
-import com.example.clinicsystem.repository.PatientRepository;
+import com.example.clinicsystem.repository.AppointmentRepository;
 import com.example.clinicsystem.repository.DoctorRepository;
+import com.example.clinicsystem.repository.PatientRepository;
 
 @Service
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
+    private final AppointmentRepository appointmentRepository;
 
-    public PatientService(PatientRepository patientRepository) {
+    public PatientService(PatientRepository patientRepository,
+            DoctorRepository doctorRepository,
+            AppointmentRepository appointmentRepository) {
         this.patientRepository = patientRepository;
+        this.doctorRepository = doctorRepository;
+        this.appointmentRepository = appointmentRepository;
     }
 
     public Patient create(Patient patient) {
@@ -31,13 +40,14 @@ public class PatientService {
     public List<Patient> findByName(String name) {
         return patientRepository.findByFullNameContainingIgnoreCase(name);
     }
+
     public List<Patient> frequent(long min) {
         return patientRepository.findFrequentPatients(min);
     }
 
     public List<Patient> ofDoctor(long doctorId) {
         if (!doctorRepository.existsById(doctorId)) {
-            throw new ResourceNotFoundException("The doctor with id does not exist" );
+            throw new ResourceNotFoundException("The doctor with id does not exist");
         }
         return patientRepository.findPatientsByDoctorId(doctorId);
     }
@@ -62,10 +72,7 @@ public class PatientService {
         patientRepository.delete(getById(id));
     }
 
-    @Autowired
-    private DoctorRepository doctorRepository;
-
-        public List<Patient> getFrequentPatients(long min) {
+    public List<Patient> getFrequentPatients(long min) {
         return patientRepository.findFrequentPatients(min);
     }
 
@@ -75,5 +82,17 @@ public class PatientService {
 
     public List<Patient> getByDoctorId(Long doctorId) {
         return patientRepository.findPatientsByDoctorId(doctorId);
+    }
+
+    // D2: upcoming appointments (today or later, SCHEDULED or CONFIRMED), soonest
+    // first
+    public List<Appointment> upcoming(Long patientId) {
+        if (!patientRepository.existsById(patientId)) {
+            throw new ResourceNotFoundException("That patient with that ssnumber does not exist");
+        }
+        List<AppointmentStatus> open = List.of(AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED);
+        return appointmentRepository
+                .findByPatientIdAndAppointmentDateGreaterThanEqualAndStatusInOrderByAppointmentDateAsc(
+                        patientId, LocalDate.now(), open);
     }
 }

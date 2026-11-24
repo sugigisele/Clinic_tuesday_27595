@@ -30,7 +30,8 @@ public class OfficeController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody Office office) {
         Office saved = officeService.create(office);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.<String, Object>of("message", "Office created successfully!", "data", saved));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.<String, Object>of("message", "Office created successfully!", "data", saved));
     }
 
     @GetMapping
@@ -38,10 +39,17 @@ public class OfficeController {
         return officeService.getAll();
     }
 
+    // A3: offices without a doctor
+    @GetMapping("/free")
+    public List<Office> getFreeOffices() {
+        return officeService.freeOffices();
+    }
+
     @GetMapping("/{id}")
     public Office getById(@PathVariable Long id) {
         return officeService.getById(id);
     }
+
     @GetMapping("/busiest")
     public Object getBusiestOffice() {
         return officeService.busiest();
@@ -49,7 +57,7 @@ public class OfficeController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody Office office) {
-        Office saved = officeService.update(id, office);
+        officeService.update(id, office);
         return ResponseEntity.ok(Map.<String, Object>of("message", "Office updated successfully!"));
     }
 

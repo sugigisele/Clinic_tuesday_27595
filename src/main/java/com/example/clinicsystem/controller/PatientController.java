@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.clinicsystem.model.domain.Appointment;
 import com.example.clinicsystem.model.domain.Patient;
 import com.example.clinicsystem.service.PatientService;
 
@@ -43,11 +44,13 @@ public class PatientController {
     public Patient getById(@PathVariable Long id) {
         return patientService.getById(id);
     }
+
     @GetMapping("/by-name")
     public List<Patient> getByName(@RequestParam String name) {
         return patientService.findByName(name);
     }
-        @GetMapping("/of-doctor/{doctorId}")
+
+    @GetMapping("/of-doctor/{doctorId}")
     public ResponseEntity<Object> getByDoctorId(@PathVariable Long doctorId) {
         if (!patientService.doctorExists(doctorId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -55,9 +58,16 @@ public class PatientController {
         }
         return ResponseEntity.ok(patientService.getByDoctorId(doctorId));
     }
+
     @GetMapping("/frequent")
     public List<Patient> getFrequentPatients(@RequestParam long min) {
         return patientService.getFrequentPatients(min);
+    }
+
+    // D2: upcoming appointments of a patient (the patient is identified by id)
+    @GetMapping("/{patientId}/upcoming")
+    public List<Appointment> getUpcoming(@PathVariable Long patientId) {
+        return patientService.upcoming(patientId);
     }
 
     @PutMapping("/{id}")
